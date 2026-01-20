@@ -20,6 +20,35 @@ Both core documents always share the **same version number**.
 
 ---
 
+## v1.1.0 — 2026-01-20
+
+### Changed
+- Formalised the contract’s positioning around **infrastructure vs experimentation**
+- Clarified that systems governed by the contract are intended to be **operational, long-lived infrastructure**
+- Tightened language to be consistently **normative and enforceable**, not descriptive
+
+### Added
+- Explicit **“Reliability Over Novelty”** principle defining:
+  - constrained innovation,
+  - acceptable failure characteristics,
+  - prioritisation of predictability over feature richness
+- Clear **deviation policy** requiring intent, documentation, risk disclosure, and reversibility
+- Explicit **non-goals** section to reduce feature creep and misinterpretation
+- Stronger emphasis on **diagnosability, recovery, and human-centric operation**
+
+### Added (Application Guidance)
+- Structured, repeatable **operational tests** replacing narrative guidance
+- Mandatory **Deviation Test** for non-compliant designs or changes
+- Explicit **Innovation Boundary Test** to prevent experimental features leaking into core reliability
+- Clear fail conditions to discourage post-hoc justification
+
+### Notes
+- This is a **minor version update**: it tightens and clarifies obligations without changing the underlying philosophy.
+- Systems compliant with v1.0.0 are expected to remain compliant under v1.1.0.
+- Both core documents (`DESIGN-CONTRACT.md` and `APPLYING-THE-CONTRACT.md`) were updated and locked together.
+
+---
+
 ## v1.0.0 — 2026-01-19
 
 ### Added
