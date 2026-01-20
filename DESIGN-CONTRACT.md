@@ -1,319 +1,161 @@
-# BORINGLY-RELIABLE  
-## Design Contract
-
-**Version:** 1.0.0  
-**Status:** Stable  
-**Last updated:** 2026-01-19
+# Boringly Reliable Design Contract  
+**Version:** 1.1.0  
+**Status:** Locked  
+**Applies to:** Apps, drivers, services, automations, and supporting infrastructure  
+**Scope:** Platform-agnostic
 
 ---
 
 ## Purpose
 
-This document defines the **BORINGLY-RELIABLE design contract**.
+This design contract defines the principles required to build systems that are **boringly reliable**.
 
-The contract governs how software systems are **designed, implemented, documented, and evolved** when the primary objectives are:
+Systems governed by this contract are expected to function as **everyday infrastructure**, not experiments. They must behave predictably, fail honestly, and remain understandable and recoverable over long periods of time, including by maintainers who did not originally design them.
 
-- long-term stability  
-- predictable and deterministic behaviour  
-- minimal operational surprise  
-- low maintenance burden  
-- suitability for “set and forget” use  
-
-This contract is **platform agnostic**.  
-It applies equally to applications, services, libraries, automation systems, monitoring tools, device drivers, and infrastructure components.
-
-It is not a style guide, methodology, or collection of best practices.  
-It is a **binding design contract**.
-
-Once adopted, deviations are considered **design violations**, not stylistic differences.
+This contract prioritises operational reliability over novelty, flexibility, or feature richness.
 
 ---
 
-## Definition of “Boringly Reliable”
+## Core Principles
 
-A system is *boringly reliable* when:
+### 1. Reliability Over Novelty
 
-- it behaves consistently over long periods of time  
-- behaviour does not depend on timing, heuristics, or interpretation  
-- actions produce immediate and predictable outcomes  
-- background activity is minimal, explicit, and justified  
-- failures are visible rather than masked or compensated for  
-- users stop thinking about the system entirely  
+This contract deliberately prioritises **stability, predictability, and operational clarity** over innovation or feature density.
 
-If a system feels clever, adaptive, or surprising, it is usually **not** boringly reliable.
+Where a design choice exists, preference is given to technologies, patterns, and behaviours that are:
+- well understood,
+- behaviourally stable over time,
+- easy to reason about during normal operation and failure,
+- recoverable without specialist knowledge.
 
----
+Innovation is not excluded, but it must be **explicitly constrained**. New or complex mechanisms are acceptable only where:
+- failure is local rather than systemic,
+- failure is immediately visible,
+- recovery is straightforward and reversible.
 
-## Design Contract vs Design Framework
+Systems covered by this contract are intended to function as infrastructure. As such, long-term maintainability, diagnosability, and trustworthiness take precedence over abstraction or theoretical elegance.
 
-This document defines a **design contract**, not a framework.
-
-- A framework offers guidance and flexibility.  
-- A contract defines obligations, boundaries, and exclusions.  
-
-Once a project declares adherence to this contract:
-
-- behaviour is intentionally constrained  
-- scope is explicitly limited  
-- rejected features remain rejected  
-- documentation is treated as part of the system’s API  
-- stability takes precedence over capability growth  
-
-The contract exists to prevent gradual erosion of reliability through incremental compromise.
+Any deviation from this principle must be intentional, justified, and accompanied by a clear statement of risk.
 
 ---
 
-## Core Principles (Non-Negotiable)
+### 2. Explicitness Over Cleverness
 
-### 1. Determinism over cleverness
+System behaviour must be obvious from the code and configuration.
 
-Prefer behaviour that is:
+- State must be explicit, named, and observable.
+- Behaviour must not rely on undocumented side effects or implicit assumptions.
+- Hidden coupling and emergent behaviour are prohibited.
 
-- explicit  
-- formally signalled  
-- directly observable  
-- provable without inference  
-
-Avoid behaviour that relies on:
-
-- timing assumptions  
-- heuristics  
-- pattern recognition  
-- adaptive interpretation  
-
-If behaviour cannot be explained without qualifiers such as *usually*, *normally*, or *in most cases*, it is excluded.
+If behaviour requires explanation to be trusted, it violates this principle.
 
 ---
 
-### 2. Minimal surface area
+### 3. Factual State Only
 
-Every feature, option, configuration, or code path increases:
+Systems must represent **observed or reported reality**, not inferred or speculative interpretations.
 
-- cognitive load  
-- failure modes  
-- testing effort  
-- long-term maintenance cost  
+- Derived, synthetic, or convenience state is discouraged.
+- Where interpretation is unavoidable, it must be clearly labelled as such.
+- Raw signals and factual attributes take precedence over abstractions.
 
-Default stance: **exclude unless essential**.
-
-Absence of features is considered a positive design outcome.
+This ensures downstream consumers can make informed decisions without inheriting hidden logic.
 
 ---
 
-### 3. Explicit scope and non-goals
+### 4. Honest Failure
 
-Every BORINGLY-RELIABLE system must explicitly document:
+Failures must be:
+- local,
+- visible,
+- understandable.
 
-- assumptions  
-- supported scope  
-- non-goals  
-- behavioural guarantees  
+Systems must not:
+- fail silently,
+- mask faults,
+- or degrade into ambiguous states.
 
-Anything not documented is **intentionally unsupported**.
-
-Ambiguity is treated as a design failure.
-
----
-
-### 4. Separation of responsibilities
-
-Each component must have a single, clearly defined responsibility.
-
-Examples include (but are not limited to):
-
-- signal acquisition vs decision-making  
-- observation vs interpretation  
-- data collection vs policy enforcement  
-
-Blurring responsibilities increases hidden coupling and reduces long-term reliability.
+A failure that is obvious is preferable to one that is hidden but partially functional.
 
 ---
 
-### 5. No hidden background activity
+### 5. Simple Recovery
 
-Avoid by default:
+Recovery paths must be:
+- documented,
+- repeatable,
+- non-destructive.
 
-- implicit schedules  
-- polling without explicit purpose  
-- self-healing logic  
-- silent retries  
-- background reconciliation  
+A system should be restorable after failure, restart, or misconfiguration without requiring:
+- specialist tools,
+- vendor intervention,
+- or manual state surgery.
 
-If background activity exists, it must be:
-
-- essential to the system’s core purpose  
-- explicitly declared  
-- clearly documented  
-- predictable in cadence and effect  
-
-Background activity that exists “just in case” is excluded.
+If recovery is fragile or ad-hoc, the design is non-compliant.
 
 ---
 
-### 6. Idempotent and safe behaviour
+### 6. Minimal and Stable Dependencies
 
-All lifecycle actions must be safe to run:
+Dependencies must be:
+- necessary,
+- explicit,
+- stable over time.
 
-- repeatedly  
-- after restart  
-- after partial configuration  
-- in unexpected order  
+Avoid:
+- transitive complexity,
+- volatile external services,
+- unnecessary layers of abstraction.
 
-Operations that cannot be safely repeated are considered reliability risks.
-
----
-
-## Feature Acceptance Rules
-
-A feature may be included **only if it passes all checks below**.
-
-### A. Core value
-
-Would a reasonable user expect this behaviour?  
-Does the system fail its stated purpose without it?
-
-If not → exclude.
+Each dependency increases the system’s operational surface area and must earn its place.
 
 ---
 
-### B. Formal mechanism exists
+### 7. Human-Centric Operation
 
-Is the behaviour supported by a clear, documented interface such as:
+Systems exist to serve people, not the other way around.
 
-- an API  
-- a protocol signal  
-- a stable data source  
+- Naming must be meaningful to humans.
+- Status and health must be understandable at a glance.
+- Diagnostics should prioritise clarity over completeness.
 
-If the behaviour must be derived or inferred → exclude.
-
----
-
-### C. Consistency over time
-
-Does the behaviour remain identical:
-
-- after restarts  
-- under load  
-- across long periods  
-- in degraded conditions  
-
-If it “mostly works” → exclude.
+A system that cannot be reasoned about while tired or under pressure is not acceptable.
 
 ---
 
-### D. Proportional complexity
+## Deviation Policy
 
-Does the feature require:
+Deviation from this contract is permitted only when:
+- it is explicit,
+- the risks are clearly documented,
+- the scope is limited,
+- and the deviation is reversible.
 
-- timers  
-- state machines  
-- recovery logic  
-- cross-component coordination  
-
-If complexity outweighs long-term value → exclude.
-
----
-
-### E. Contract compatibility
-
-If a feature violates documented assumptions or non-goals, it is excluded regardless of perceived usefulness.
+Implicit or accidental deviation is not acceptable.
 
 ---
 
-## Diagnostics Philosophy
+## Non-Goals
 
-Diagnostics are permitted only if they are:
+This contract does not aim to:
+- maximise features,
+- adopt new standards early,
+- optimise for theoretical purity,
+- or impress with complexity.
 
-- factual  
-- low maintenance  
-- non-interpretive  
-
-### Allowed diagnostics
-
-- timestamps  
-- raw counters  
-- immutable metadata  
-- version identifiers  
-- last-observed indicators  
-
-### Excluded by default
-
-- inferred health states  
-- composite scores  
-- adaptive thresholds  
-- automated correction  
-
-Observation is acceptable.  
-Interpretation is not.
+Its goal is trust.
 
 ---
 
-## Documentation as a Contractual Obligation
+## Versioning and Change Control
 
-Documentation is treated as part of the system’s API.
+This contract is **locked at v1.1.0**.
 
-Once this contract is adopted:
+Future changes must:
+- increment the version,
+- document rationale,
+- and preserve backward interpretability.
 
-- comments describe guarantees, not speculation  
-- behaviour changes require documentation updates first  
-- undocumented behaviour is considered a defect  
-
-Accuracy and completeness of explanation take precedence over brevity.
-
----
-
-## Versioning and Stability
-
-### Contract Versioning
-
-This design contract is versioned.
-
-Version changes follow these rules:
-
-- **Patch versions (x.y.Z)**  
-  Clarifications only. No change in meaning or obligations.
-
-- **Minor versions (x.Y.0)**  
-  Additive refinements that tighten or clarify constraints without invalidating existing compliant systems.
-
-- **Major versions (X.0.0)**  
-  Substantive changes to obligations, exclusions, or scope.  
-  Existing systems may no longer be compliant.
+Existing systems should be assessed against the version under which they were created.
 
 ---
-
-### Meaning of Version 1.0.0
-
-Version **1.0.0** signifies:
-
-- intentional scope freeze  
-- stable semantics  
-- contract-bound behaviour  
-- bug fixes only within documented guarantees  
-
-Stability is treated as a success condition, not stagnation.
-
----
-
-## When the Contract Must NOT Be Applied
-
-This contract must **not** be applied during:
-
-- early exploration  
-- feasibility studies  
-- rapid experimentation  
-- domain learning phases  
-
-Premature application of the contract inhibits learning and leads to false confidence.
-
----
-
-## Closing Statement
-
-Complexity accumulates naturally.  
-Reliability must be defended deliberately.
-
-The BORINGLY-RELIABLE design contract exists to preserve intent, resist entropy, and ensure systems continue to behave predictably long after active development has ceased.
-
-Boring is not the absence of thought.  
-It is the result of disciplined thinking applied early and enforced consistently.
